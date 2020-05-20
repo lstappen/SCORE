@@ -50,7 +50,7 @@ optional arguments:
 - non-off-the-shelf python packages: mmatplotlib, librosa, imageio, PIL
 - Store the data in data/, using a separate directory for 'women' and 'men' tennis players.
 - Create a directory 'tools' in the main directory and add openXBOW.jar (https://github.com/openXBOW/openXBOW).
-
+- For the extraction of Deep Spectrum features install Deep Spectrum according to https://github.com/DeepSpectrum/DeepSpectrum. After installation activate the virtual environment before extracting features with the 'extract_features.py' and the parameter '-f ds'  
 
 ## 3. Run experiments
 The .csv features are serialised and stored as data objects (./features/pkl/$feature_type$/\*.pkl) for every feature/label combination. All experiment parameters (including network hyperparameters) can be adjusted in config.py.
@@ -72,6 +72,23 @@ optional arguments:
   -n EXPERIMENT_NAME, --experiment_name EXPERIMENT_NAME
                         name of experiment
   -g GENDER [GENDER ...], --gender GENDER [GENDER ...]
+                        gender of data: all m w
+  --verbose             prints more output information if true
+```
+### Usage Deep Spectrum
+```
+usage: deep_spectrum_model_training.py [-h] [-l LABEL_TYPE] 
+               [-t SPLITS] [-g GENDER ] [--verbose]
+
+Prepare feature .pkl and run experiments
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -l LABEL_TYPE, --label_type LABEL_TYPE
+                        specify the type of label you want to use
+  -t SPLITS, --splits SPLITS
+                        number of splits for cross validation
+  -g GENDER, --gender GENDER
                         gender of data: all m w
   --verbose             prints more output information if true
 ```

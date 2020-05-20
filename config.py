@@ -18,6 +18,7 @@ def get_basic_config(feature_type, label_type, SPLITS, HOLDOUT):
     config['FEATURE_PATH_BoAW'] = config['FEATURE_PATH'] + os.sep + 'boaw' + os.sep
     config['FEATURE_PATH_eGemaps'] = config['FEATURE_PATH'] + os.sep + 'egemaps' + os.sep
     config['FEATURE_PATH_PKLS'] = config['FEATURE_PATH'] + os.sep + 'pkls' + os.sep + config['feature_type'] + os.sep
+    config['FEATURE_PATH_DS'] = config['FEATURE_PATH'] + os.sep + 'deepspectrum' + os.sep
     config['GENDER'] = ['women', 'men']
 
     # Modify openSMILE paths here:
@@ -25,6 +26,10 @@ def get_basic_config(feature_type, label_type, SPLITS, HOLDOUT):
     config['SMILEconf'] = '~/opensmile-2.3.0/config/ComParE_2016.conf'
     config['egemapsconf'] = '~/opensmile-2.3.0/config/gemaps/eGeMAPSv01a.conf'
     config['openXBOW'] = './tools/openXBOW.jar'
+
+    #Deep Spectrum configuration
+    config['ds'] = 'deepspectrum features'
+    config['dsconf'] = ' -nm 256 -nl -en vgg16 -fl fc2 -m mel '
 
     if config['feature_type'] == 'mfcc':
         config = get_mfcc_config(config)
@@ -39,8 +44,7 @@ def get_basic_config(feature_type, label_type, SPLITS, HOLDOUT):
 
     if config['feature_type'] == 'raw':
         config = get_raw_audio_config(config)
-    
-    # modify DeepSpecturm settings here
+
 
     return config
 
@@ -180,7 +184,6 @@ def get_cnn_config(model_type, experiment_name, feature_type):
 
 # cnn specific config
 def get_crnn_config(model_type, experiment_name, feature_type):
-    # parameter_list identified as best working parameters
 
     config = get_basic_evaluation(model_type, experiment_name, feature_type)
     config = get_mfcc_config(config)
@@ -194,25 +197,12 @@ def get_crnn_config(model_type, experiment_name, feature_type):
         config['Conv3_kernel_size'] = 10
         config['lstm1_n'] = 40
         config['lstm2_n'] = 40//2
-        config['parameter_list'] = [
-                    { #I
-                    'num_epochs': 500, 
-                    'num_batch_size': 16,
-                    'learning_rate' : 0.00005
-                    },
-                    { #II
-                    'num_epochs': 500, 
-                    'num_batch_size': 16,
-                    'learning_rate' : 0.0001
-                    },
-                    { #IV
-                    'num_epochs': 500, 
-                    'num_batch_size': 32,
-                    'learning_rate' : 0.001
-                    },  
-                    ] 
-        #get_parameter_optimisation()
-
+        config['parameter_list'] = get_parameter_optimisation()
+        # [{
+        # 'num_epochs': 500, 
+        # 'num_batch_size': 32,
+        # 'learning_rate' : 0.005
+        # },]
     elif config['feature_type'] == 'lld':
         config['Conv1_filters'] = 30
         config['Conv1_kernel_size'] = 10
@@ -222,27 +212,13 @@ def get_crnn_config(model_type, experiment_name, feature_type):
         config['Conv3_kernel_size'] = 10
         config['lstm1_n'] = 50
         config['lstm2_n'] = 30
-        # Models from the paper
-        config['parameter_list'] = [
-                    { #I
-                    'num_epochs': 500, 
-                    'num_batch_size': 16,
-                    'learning_rate' : 0.00005
-                    },
-                    { # II
-                    'num_epochs': 500, 
-                    'num_batch_size': 16,
-                    'learning_rate' : 0.0001
-                    },
-                    { # IV
-                    'num_epochs': 500, 
-                    'num_batch_size': 32,
-                    'learning_rate' : 0.001
-                    },  
-                    ] 
-        #get_parameter_optimisation()
- 
-    if config['feature_type'] == 'raw': #NOT USED
+        config['parameter_list'] = get_parameter_optimisation()
+        # [{
+        # 'num_epochs': 500, 
+        # 'num_batch_size': 32,
+        # 'learning_rate' : 0.0001
+        # },]  
+    if config['feature_type'] == 'raw':
         config['Conv1_filters'] = 40
         config['Conv1_kernel_size'] = 2
         config['Conv2_filters'] = 50
@@ -257,7 +233,7 @@ def get_crnn_config(model_type, experiment_name, feature_type):
         # 'num_batch_size': 50,
         # 'learning_rate' : 0.0001
         # },]
-    else: # spectorgrams
+    else: 
         config['Conv1_filters'] = 10
         config['Conv1_kernel_size'] = 6
         config['Conv2_filters'] = 20
@@ -266,26 +242,15 @@ def get_crnn_config(model_type, experiment_name, feature_type):
         config['Conv3_kernel_size'] = 10
         config['lstm1_n'] = 40
         config['lstm2_n'] = 40//2
-        config['parameter_list'] = [
-                    { #III
-                    'num_epochs': 500, 
-                    'num_batch_size': 16,
-                    'learning_rate' : 0.001
-                    },
-                    { # II
-                    'num_epochs': 500, 
-                    'num_batch_size': 16,
-                    'learning_rate' : 0.0001
-                    },
-                    { # IV
-                    'num_epochs': 500, 
-                    'num_batch_size': 32,
-                    'learning_rate' : 0.001
-                    },  
-                    ] 
+        config['parameter_list'] = get_parameter_optimisation()
+        # [{
+        # 'num_epochs': 500, 
+        # 'num_batch_size': 32,
+        # 'learning_rate' : 0.005
+        # },]  
 
 
-    
+    # experiment parameter          identified as best working parameters:
 
 
     return config
@@ -295,7 +260,31 @@ def get_parameter_optimisation():
     # 'num_batch_size': 16, 
     # 'learning_rate' : 0.01}]
 
-    return  [{'num_epochs': 500, 
+    return [
+            {'num_epochs': 3000, 
+            'num_batch_size': 64, 
+            'learning_rate' : 1e-05}]
+
+    [{'num_epochs': 500, 
+            'num_batch_size': 16, 
+            'learning_rate' : 0.001},
+            {'num_epochs': 500, 
+            'num_batch_size': 16, 
+            'learning_rate' : 0.0001},
+            {'num_epochs': 500, 
+            'num_batch_size': 16, 
+            'learning_rate' : 5e-05},
+            {'num_epochs': 500, 
+            'num_batch_size': 16, 
+            'learning_rate' : 1e-05},
+            {'num_epochs': 500, 
+            'num_batch_size': 32, 
+            'learning_rate' : 0.001},
+            {'num_epochs': 500, 
+            'num_batch_size': 64, 
+            'learning_rate' : 0.0001}]
+
+    [{'num_epochs': 500, 
      'num_batch_size': 16, 
      'learning_rate' : 0.01},
     {'num_epochs': 500, 

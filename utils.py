@@ -47,6 +47,11 @@ def spectro_file_name(config, file_name):
     output_file  = config['FEATURE_PATH_Spectro']  +  file_name.split(os.sep)[-1]  +  '.Spectro' + '.png' 
     return output_file
 
+def deep_spectrum_file_name(config):
+    output_file_ds = config['FEATURE_PATH_DS'] +  'ds' + '.csv'
+    return output_file_ds
+
+
 # helper function to parse file_name
 def boaw_file_name(config, file_name):
     output_file_boaw = config['FEATURE_PATH_BoAW'] +  file_name.split(os.sep)[-1] + '.BoAW-' + str(config['csize']) + '.csv'

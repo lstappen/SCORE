@@ -88,7 +88,7 @@ parser = argparse.ArgumentParser(description='Train an SVM model on deep spectru
 #                    help='specify the type of features you want to generate')
 parser.add_argument('-l','--label_type', type=str, dest='label_type', action='store', default='point',
                     help='specify the type of label you want to generate')
-parser.add_argument('-g','--gender', type=str, dest='gender', action='store', default='mw',
+parser.add_argument('-g','--gender', type=str, dest='gender', action='store', default='all',
                     help='gender of data (for score prediction)')
 parser.add_argument('-t', '--splits', type=int, dest='SPLITS', action='store', default=5,
                     help='specify no of data splits')
@@ -102,7 +102,7 @@ data_path = deep_spectrum_file_name(config)
 gender = args.gender
 
 if args.label_type == "gender":
-    gender = "mw"
+    gender = "all"
 
 # metric_name = "f1"
 metric_name = "uar"
@@ -127,7 +127,7 @@ for line in lines:
         continue
     if gender == "w" and not "women" in line:
         continue
-    if gender == "mw":
+    if gender == "all":
         pass
     line_split = line.split(",")
     filename = line_split[0]

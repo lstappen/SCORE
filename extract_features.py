@@ -10,6 +10,7 @@ import librosa
 import imageio
 import matplotlib.pyplot as plt
 from sklearn.model_selection import GroupKFold
+import sys
 
 ## global
 SEED = 23
@@ -17,7 +18,7 @@ seed(SEED)
 
 # own modules
 from config import get_basic_config
-from utils import labels_from_filename, groups_from_filename, compare_lld_file_name, create_folders_basic, merge_nparr, dump_data_objects, dump_data_object, boaw_file_name, egemaps_file_name, spectro_file_name
+from utils import labels_from_filename, groups_from_filename, compare_lld_file_name, deep_spectrum_file_name, create_folders_basic, merge_nparr, dump_data_objects, dump_data_object, boaw_file_name, egemaps_file_name, spectro_file_name
 from data import Data
 from PIL import Image
 
@@ -25,7 +26,7 @@ from PIL import Image
 
 ## interface
 parser = argparse.ArgumentParser(description='Prepare feature .pkl')
-parser.add_argument('-f','--feature_type', type=str, dest='feature_type', action='store', default='compare', required=True,
+parser.add_argument('-f','--feature_type', type=str, dest='feature_type', action='store', default='compare',
                     help='specify the type of features you want to generate')
 parser.add_argument('-l','--label_type', type=str, dest='label_type', action='store', default='point',
                     help='specify the type of label you want to generate')
@@ -260,17 +261,19 @@ def extract_gender_specific_features(config, files, labels, groups):
             if config['feature_type'] == 'compare':
                 features = extract_features_compare(config, fi)  
             elif config['feature_type'] == 'lld':
-                features = extract_features_llds(config, fi)   
+                features = extract_features_llds(config, fi)
             elif config['feature_type'] == 'egemaps':
                 features = extract_features_egemaps(config, fi)  
             elif 'boaw' in config['feature_type']:
-                features = extract_features_BoAW(config, fi)  
+                features = extract_features_BoAW(config, fi)
             elif config['feature_type'] == 'mfcc':
-                features = extract_features_mfcc(config, fi) 
+                features = extract_features_mfcc(config, fi)
             elif config['feature_type'] == 'spectro':
                 features = load_features_spectrogram(config, fi)     
             elif config['feature_type'] == 'raw': 
-                features = extract_raw_signal(config, fi)       
+                features = extract_raw_signal(config, fi)
+            elif config['feature_type'] == 'ds':
+                break
             else:
                 print('feature_type ', config['feature_type'], ' not valid.')
                 exit()
@@ -279,7 +282,46 @@ def extract_gender_specific_features(config, files, labels, groups):
                 features_female.append([features, label])
             else:
                 features_male.append([features, label])
+    if config['feature_type'] == 'ds':
+        extract_deep_spectrum(config)
+        sys.exit()
     return features_male, features_female
+
+
+def extract_deep_spectrum(config, overwrite=True):
+    output_file_ds = deep_spectrum_file_name(config)
+
+    folder_name_console = config['DATA_PATH'] + os.sep
+    output_file_console = output_file_ds
+
+    # Extract openSMILE features for the file (standard ComParE and LLD-only)
+    cmd = config['ds'] + config['dsconf'] + folder_name_console + ' -o ' + output_file_console
+
+    if os.path.exists(output_file_ds) and not overwrite:
+        run = False
+        print("Features already extracted")
+    else:
+        run = True
+        if os.path.exists(output_file_ds):
+            print('remove: ' + output_file_ds)
+            os.remove(output_file_ds)
+
+    if run:
+        # execute
+        print(cmd)
+        return_os = os.system(cmd)
+        print("Deep Spectrum features extracted")
+    else:
+        return_os = 0
+
+    if return_os > 0:
+        print('Failure executing: ' + cmd)
+
+    # else:
+    #     ds_df = pd.read_csv(output_file_ds, sep=';')
+    #     ds_features = ds_df.as_matrix(columns=ds_df.columns[2:])
+    #     print("[X]  " + file_name)
+    #     return ds_features
 
 
 ## Fold partitioning with holdout

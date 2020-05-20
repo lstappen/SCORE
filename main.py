@@ -23,7 +23,7 @@ seed(SEED)
 
 ## interface
 parser = argparse.ArgumentParser(description='Prepare feature .pkl and run experiments')
-parser.add_argument('-f','--feature_type', type=str, dest='feature_type', action='store', default='compare'
+parser.add_argument('-f','--feature_type', type=str, dest='feature_type', action='store', default='compare',
                     help='specify the type of features you want to use')
 parser.add_argument('-l','--label_type', type=str, dest='label_type', action='store', default='point',
                     help='specify the type of label you want to use')
